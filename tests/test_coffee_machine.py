@@ -25,25 +25,19 @@ class TestCoffeeMachine:
         assert len(drink_maker_commands) == 1
         assert drink_maker_commands[0] == expected_command
 
-    def test_dispense_beverage_with_one_sugar(self):
+    @pytest.mark.parametrize(
+        "beverage_type, sugar, expected_command",
+        [(BeverageType.TEA, 1, "T:1:"), (BeverageType.COFFEE, 2, "C:2:")],
+    )
+    def test_dispense_beverage_with_one_sugar(
+        self, beverage_type, sugar, expected_command
+    ):
         drink_maker_spy = DrinkMakerTestDouble()
         coffe_machine = CoffeeMachine(drink_maker_spy)
 
-        beverage_request = BeverageRequest(beverage_type=BeverageType.CHOCOLATE, sugar=1)
+        beverage_request = BeverageRequest(beverage_type=beverage_type, sugar=sugar)
         coffe_machine.dispense(beverage_request)
 
         drink_maker_commands = drink_maker_spy.get_received_commands()
         assert len(drink_maker_commands) == 1
-        assert drink_maker_commands[0] == "H:1:"
-
-    def test_dispense_beverage_with_two_sugars(self):
-        drink_maker_spy = DrinkMakerTestDouble()
-        coffe_machine = CoffeeMachine(drink_maker_spy)
-
-        beverage_request = BeverageRequest(
-            beverage_type=BeverageType.CHOCOLATE, sugar=2)
-        coffe_machine.dispense(beverage_request)
-
-        drink_maker_commands = drink_maker_spy.get_received_commands()
-        assert len(drink_maker_commands) == 1
-        assert drink_maker_commands[0] == "H:2:"
+        assert drink_maker_commands[0] == expected_command
